@@ -4,7 +4,7 @@ const errMessage = fieldName => `missing required ${fieldName} field`;
 
 const validated = (shema) => {
     const func = (req, res, next) => {
-        const { name, email, phone } = req.body;
+        const { name, email, phone, favorite } = req.body;
         if (!name && !email && !phone) next(HttpError(400, "missing fields"));
         if (!name) next(HttpError(400, errMessage('name')));
         if (!email) next(HttpError(400, errMessage('email')));
@@ -16,7 +16,16 @@ const validated = (shema) => {
     return func;
 };
 
+const validteStatus = (shema) => {
+    const func = (req, res, next) => {
+        const {favorite} = req.body
+        if (favorite === null) next(HttpError(400, "missing field favorite"));
+        const { error } = shema.validate(req.body);
+        if (error) next(HttpError(400, error.message));
+        next();
+    };
+    return func;
+};
 
-
-module.exports = validated;
+module.exports = {validated, validteStatus};
 
