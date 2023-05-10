@@ -16,11 +16,9 @@ const validated = (shema) => {
     return func;
 };
 
-const validteStatus = (shema) => {
+const validteStatusFavorite = (shema) => {
     const func = (req, res, next) => {
-        console.log(req.body);
-        const {favorite} = req.body
-        if (!favorite) next(HttpError(400, "missing field favorite"));
+        if (!Object.keys(req.body).length) next(HttpError(400, "missing field favorite"));
         const { error } = shema.validate(req.body);
         if (error) next(HttpError(400, error.message));
         next();
@@ -28,5 +26,5 @@ const validteStatus = (shema) => {
     return func;
 };
 
-module.exports = {validated, validteStatus};
+module.exports = {validated, validteStatusFavorite};
 
