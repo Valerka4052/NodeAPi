@@ -18,8 +18,8 @@ const validated = (shema) => {
 
 const validteStatus = (shema) => {
     const func = (req, res, next) => {
-        const {favorite} = req.body
-        if (favorite === null) next(HttpError(400, "missing field favorite"));
+        // const {favorite} = req.body
+        if (req.body === null) next(HttpError(400, "missing field favorite"));
         const { error } = shema.validate(req.body);
         if (error) next(HttpError(400, error.message));
         next();
