@@ -7,9 +7,12 @@ const addContactShema = Joi.object({
     email: Joi.string().required(),
     phone: Joi.string().required(),
     favorite: Joi.boolean()
+}).messages({
+  'any.required': 'missing required {#label} field',
+  'object.missing': 'Fields {#context.missing} are missing'
 });
 
-const updateFavoriteShema = Joi.object({ favorite: Joi.bool() });
+const updateFavoriteShema = Joi.object({ favorite: Joi.bool().required().messages({ 'any.required': 'missing field {#label}' }) });
 
 const contactSchema = new Schema({
     name: {
@@ -26,9 +29,12 @@ const contactSchema = new Schema({
         type: Boolean,
         default: false,
     },
+    owner: {
+        type: Schema.Types.ObjectId,
+        ref: 'user',
+    }
 }, {
     versionKey: false,
-    // timestamps: true,
 });
 
 contactSchema.post("save", hahdleMongooseError);
