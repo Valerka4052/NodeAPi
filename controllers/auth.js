@@ -13,9 +13,10 @@ const register = async (req, res) => {
     const hashPassword = await bcrypt.hash(password, 7);
     const newUser = await User.create({ email, password: hashPassword });
     res.status(201).json({
+        user: {
         email: newUser.email,
         subscription: newUser.subscription
-    });
+    }});
 };
 
 const login = async (req, res) => {
@@ -36,13 +37,13 @@ const getCurrent = async (req, res) => {
 };
 
 const logout = async (req, res) => {
-    User.findByIdAndUpdate(req.user._id, { token: '' });
-    res.status(204);
+   await User.findOneAndUpdate(req.user._id, { token: '' });
+    res.status(204).json()
 };
 
 const updateSubscription = async (req, res) => {
     const { _id } = req.user;
-    const user = await User.findOneAndUpdate(_id, req.body,{ new: true });
+    const user = await User.findByIdAndUpdate(_id, req.body,{ new: true });
     res.json({ subscription: user.subscription });
 };
 
