@@ -1,17 +1,21 @@
 const { User } = require('../models/user');
-const { HttpError, funcWrapper } = require('../helpers');
+const { HttpError, funcWrapper, resizeAvatar } = require('../helpers');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const fs = require('fs/promises');
+const path = require('path');
+const gravatar = require('gravatar');
 
 require('dotenv').config();
 const { SECRET_KEY } = process.env;
 
 const register = async (req, res) => {
     const { email, password } = req.body;
+    const avatarURL = gravatar.url(email,{s: '250'});
     const user = await User.findOne({ email });
     if (user) throw HttpError(409, "Email in use");
     const hashPassword = await bcrypt.hash(password, 7);
-    const newUser = await User.create({ email, password: hashPassword });
+    const newUser = await User.create({ email, password: hashPassword, avatarURL });
     res.status(201).json({
         user: {
         email: newUser.email,
@@ -47,10 +51,27 @@ const updateSubscription = async (req, res) => {
     res.json({ subscription: user.subscription });
 };
 
+
+const getAvatar = async (req, res) => {
+    const { _id: id } = req.user;
+    const { originalname } = req.file;
+    const fileName = (id + originalname);
+    const newPath = path.join(__dirname, '../', 'public', 'avatars');
+    const uploadResult = path.join(newPath, fileName);
+    await resizeAvatar(req.file.path);
+    await fs.rename(req.file.path, uploadResult);
+    const avatar = path.join('avatars', fileName);
+    await User.findByIdAndUpdate(id, { avatarURL: avatar });
+    res.status(200).json({ avatarURL: avatar });
+};
+
+
+
 module.exports = {
     register: funcWrapper(register),
     login: funcWrapper(login),
     getCurrent: funcWrapper(getCurrent),
     logout: funcWrapper(logout),
-    updateSubscription:funcWrapper(updateSubscription),
+    updateSubscription: funcWrapper(updateSubscription),
+    getAvatar: funcWrapper(getAvatar),
 };
