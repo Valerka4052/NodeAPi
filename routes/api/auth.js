@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const { authentificate, validated, upload } = require('../../middlewares');
-const { registerShema, updateSubscriptionSchema } = require('../../models/user');
-const { register, login, getCurrent, logout, updateSubscription,getAvatar } = require('../../controllers/auth');
+const { registerShema, updateSubscriptionSchema, emailShema } = require('../../models/user');
+const { register, login, getCurrent, logout, updateSubscription, getAvatar, verifyEmail, resendVerifyEmail } = require('../../controllers/auth');
 
-router.post('/register',validated(registerShema),register);
+router.post('/register', validated(registerShema), register);
+router.get('/verify/:verificationToken', verifyEmail);
+router.post('/verify', validated(emailShema), resendVerifyEmail);
 router.post('/login',validated(registerShema),login);
 router.post('/logout',authentificate, logout);
 router.get('/current', authentificate, getCurrent);
